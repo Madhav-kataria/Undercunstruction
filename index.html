@@ -56,6 +56,26 @@
             75% { transform: scale(1.1) rotate(5deg); }
         }
 
+        @keyframes background-flash {
+            0% { background-color: rgba(255, 105, 180, 0); } /* Start transparent hot pink */
+            50% { background-color: rgba(255, 105, 180, 0.2); } /* Peak hot pink */
+            100% { background-color: rgba(255, 105, 180, 0); } /* End transparent hot pink */
+        }
+
+        @keyframes particle-burst-anim {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+        .particle-burst {
+            position: absolute;
+            width: 8px; /* Small size */
+            height: 8px;
+            background-color: #FFD700; /* Gold color for burst */
+            border-radius: 50%;
+            animation: particle-burst-anim 0.8s ease-out forwards;
+            pointer-events: none; /* Ensure it doesn't block clicks */
+        }
+
         /* Apply animations using Tailwind's `animation` utility */
        .animate-spin-slow { animation: spin-slow 10s linear infinite; }
        .animate-fade-in { animation: fade-in 1s ease-out forwards; }
@@ -66,6 +86,7 @@
        .animate-progress-pulse { animation: progress-pulse 2s ease-in-out infinite; }
        .animate-float-ghost { animation: float-ghost 2s ease-in-out infinite; }
        .animate-ghost-crazy-bounce { animation: ghost-crazy-bounce 0.5s ease-out; }
+       .animate-background-flash { animation: background-flash 0.8s ease-out; }
 
 
         /* Ensure Inter font is used (Tailwind's default sans font) */
@@ -207,8 +228,9 @@
             }
             typeWriter(); // Start the typing effect
 
-            // --- Dynamic Background Elements (Orbs, Particles, Floating Icons) ---
+            // --- Dynamic Background Elements (Orbs, Particles) ---
             const dynamicElementsContainer = document.getElementById('dynamic-elements-container');
+            const bodyElement = document.body; // Get reference to the body for background animation
 
             // Glowing Orbs
             const createGlowingOrb = (delay) => {
@@ -240,37 +262,6 @@
             for (let i = 0; i < 100; i++) { // Increased from 50 to 100
                 createParticle();
             }
-
-            // Floating Icons (using inline SVGs for simplicity)
-            const iconSvgs = {
-                Wrench: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-2.53 2.53a1 1 0 0 0-1.4 0L6.3 14.7a1 1 0 0 0 0-1.4l1.6-1.6a1 1 0 0 0 0-1.4L3.77 3.77a6 6 0 0 1 7.94 7.94l2.53 2.53a1 1 0 0 0 0 1.4Z"/><path d="m21.2 21.2-1.4-1.4"/><path d="M14.7 14.7 6.3 6.3"/></svg>`,
-                Rocket: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.75-.75 1.36-1.91 1.67-3.17m-1.41-1.41a2 2 0 0 0-2.83 2.83m.34-4.34a2 2 0 0 0 2.83 2.83m-1.41-1.41a2 2 0 0 0 2.83 2.83M9 14l-2 2"/><path d="M15 9l2-2"/><path d="M18 13v6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-6"/><path d="M10 12.5V10a2 2 0 0 1 2-2v0a2 2 0 0 1 2 2v2.5"/><path d="M12 2v6"/><path d="M12 16v6"/></svg>`,
-                Zap: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M4 14h9l-3 9L22 10h-9l3-9z"/></svg>`,
-                Star: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-                Code: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
-                Palette: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette"><circle cx="12" cy="12" r="10"/><path d="M16 12a4 4 0 1 1-8 0"/><path d="M18.5 12.5L12 19"/></svg>`
-            };
-
-            const createFloatingIcon = (iconName, delay, size = 20) => {
-                const iconDiv = document.createElement('div');
-                iconDiv.className = `absolute animate-bounce text-white/30 hover:text-white/60 transition-colors duration-300`;
-                iconDiv.style.animationDelay = delay;
-                iconDiv.style.animationDuration = '3s';
-                iconDiv.style.left = `${Math.random() * 80 + 10}%`;
-                iconDiv.style.top = `${Math.random() * 80 + 10}%`;
-                iconDiv.innerHTML = iconSvgs[iconName].replace(/width="\d+"/g, `width="${size}"`).replace(/height="\d+"/g, `height="${size}"`);
-                dynamicElementsContainer.appendChild(iconDiv);
-            };
-            // Increased number of floating icons for more excitement
-            createFloatingIcon('Wrench', '0s', 24);
-            createFloatingIcon('Rocket', '1s', 28);
-            createFloatingIcon('Zap', '2s', 22);
-            createFloatingIcon('Star', '0.5s', 20);
-            createFloatingIcon('Code', '1.5s', 26);
-            createFloatingIcon('Palette', '2.5s', 24);
-            createFloatingIcon('Rocket', '3.5s', 30);
-            createFloatingIcon('Star', '4s', 25);
-            createFloatingIcon('Wrench', '4.5s', 20);
 
             // --- Ghost Following Cursor ---
             const ghostElement = document.createElement('div');
@@ -304,14 +295,43 @@
 
             // --- Ghost Click Activity ---
             ghostElement.addEventListener('click', () => {
+                // Ghost's own crazy bounce animation
                 ghostElement.classList.remove('animate-float-ghost'); // Stop normal float
                 ghostElement.classList.add('animate-ghost-crazy-bounce'); // Add crazy bounce
 
-                // Remove the crazy bounce animation after it completes to allow re-triggering
+                // Trigger background flash animation
+                bodyElement.classList.add('animate-background-flash');
+
+                // Create a burst of particles from the ghost's position
+                const numParticles = 15;
+                for (let i = 0; i < numParticles; i++) {
+                    const burstParticle = document.createElement('div');
+                    burstParticle.className = 'particle-burst';
+                    // Position it at the ghost's current location
+                    burstParticle.style.left = `${ghostX}px`;
+                    burstParticle.style.top = `${ghostY}px`;
+                    // Random direction for particles
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 50 + 20; // Random distance
+                    burstParticle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+                    burstParticle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+                    dynamicElementsContainer.appendChild(burstParticle);
+
+                    // Remove particle after animation
+                    burstParticle.addEventListener('animationend', () => {
+                        burstParticle.remove();
+                    });
+                }
+
+                // Remove animations after they complete to allow re-triggering
                 ghostElement.addEventListener('animationend', () => {
                     ghostElement.classList.remove('animate-ghost-crazy-bounce');
                     ghostElement.classList.add('animate-float-ghost'); // Resume normal float
-                }, { once: true }); // Ensure the event listener is removed after one use
+                }, { once: true }); 
+
+                bodyElement.addEventListener('animationend', () => {
+                    bodyElement.classList.remove('animate-background-flash');
+                }, { once: true });
             });
         });
     </script>
