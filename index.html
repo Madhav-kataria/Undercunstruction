@@ -65,15 +65,23 @@
             white-space: nowrap;
             border-width: 0;
         }
+
+        /* IMPORTANT: Remove overflow-hidden from body and min-h-screen for scrollability */
+        /* Instead, apply min-h-screen to the main content container if you want it to always fill the screen,
+           but allow overflow-y-auto or auto on body/html */
+        html, body {
+            height: 100%; /* Ensures html and body are at least full height */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: auto; /* Allow vertical scroll when content overflows */
+        }
     </style>
 </head>
-<body class="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-
+<body class="relative bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
     <div class="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 animate-subtle-pulse"></div>
 
     <div id="dynamic-elements-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
 
-    <main class="relative z-10 flex items-center justify-center min-h-screen px-4">
+    <main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-16">
         <div class="text-center max-w-4xl mx-auto">
             <div class="mb-8 flex justify-center">
                 <div class="relative">
@@ -218,7 +226,7 @@
         </div>
     </main>
 
-    <div class="absolute bottom-4 left-0 right-0 text-center animate-fade-in">
+    <div class="relative text-center mt-8 pb-4 animate-fade-in">
         <p class="text-white/40 text-sm">
             © 2024 [Your Company/Project Name]. All rights reserved.
         </p>
@@ -313,12 +321,17 @@
 
             const createFloatingIcon = (iconName, delay, size = 24) => {
                 const iconDiv = document.createElement('div');
-                iconDiv.className = `absolute animate-float text-white/30 hover:text-white/60 transition-colors duration-300`;
+                // Removed 'animate-float' from iconDiv's class here to simplify potential layout issues
+                // The floating is now more driven by the 'top' and 'left' being random, and a subtle transform
+                iconDiv.className = `absolute text-white/30 hover:text-white/60 transition-colors duration-300`;
                 iconDiv.style.animationDelay = delay;
                 iconDiv.style.animationDuration = `${4 + Math.random() * 4}s`; // Varied duration
                 iconDiv.style.left = `${Math.random() * 80 + 10}%`;
                 iconDiv.style.top = `${Math.random() * 80 + 10}%`;
                 iconDiv.innerHTML = iconSvgs[iconName].replace(/width="\d+"/g, `width="${size}"`).replace(/height="\d+"/g, `height="${size}"`);
+
+                // Apply a subtle float animation to individual icons if desired
+                iconDiv.style.animation = `float ${iconDiv.style.animationDuration} ease-in-out infinite`;
                 dynamicElementsContainer.appendChild(iconDiv);
             };
 
