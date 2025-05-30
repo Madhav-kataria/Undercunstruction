@@ -43,6 +43,19 @@
             50% { transform: scaleX(1.01); opacity: 0.9; }
         }
 
+        @keyframes float-ghost {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes ghost-crazy-bounce {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(15deg); }
+            50% { transform: scale(0.8) rotate(-15deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
         /* Apply animations using Tailwind's `animation` utility */
        .animate-spin-slow { animation: spin-slow 10s linear infinite; }
        .animate-fade-in { animation: fade-in 1s ease-out forwards; }
@@ -51,6 +64,9 @@
        .animate-subtle-pulse { animation: subtle-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
        .group-hover\:animate-card-glow:hover { animation: card-glow 3s ease-in-out infinite; } /* Apply on hover */
        .animate-progress-pulse { animation: progress-pulse 2s ease-in-out infinite; }
+       .animate-float-ghost { animation: float-ghost 2s ease-in-out infinite; }
+       .animate-ghost-crazy-bounce { animation: ghost-crazy-bounce 0.5s ease-out; }
+
 
         /* Ensure Inter font is used (Tailwind's default sans font) */
         body { font-family: 'Inter', sans-serif; }
@@ -255,6 +271,48 @@
             createFloatingIcon('Rocket', '3.5s', 30);
             createFloatingIcon('Star', '4s', 25);
             createFloatingIcon('Wrench', '4.5s', 20);
+
+            // --- Ghost Following Cursor ---
+            const ghostElement = document.createElement('div');
+            ghostElement.innerHTML = '👻'; // Ghost emoji
+            ghostElement.className = 'absolute text-4xl opacity-75 animate-float-ghost pointer-events-auto cursor-pointer z-20'; // Added cursor-pointer
+            dynamicElementsContainer.appendChild(ghostElement);
+
+            let mouseX = 0;
+            let mouseY = 0;
+            let ghostX = 0;
+            let ghostY = 0;
+            const easingFactor = 0.08; // Controls how quickly the ghost follows (smaller = smoother)
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function animateGhost() {
+                // Interpolate ghost position towards mouse position
+                ghostX += (mouseX - ghostX) * easingFactor;
+                ghostY += (mouseY - ghostY) * easingFactor;
+
+                // Adjust for ghost size so cursor is roughly in the center
+                ghostElement.style.left = `${ghostX - (ghostElement.offsetWidth / 2)}px`;
+                ghostElement.style.top = `${ghostY - (ghostElement.offsetHeight / 2)}px`;
+
+                requestAnimationFrame(animateGhost);
+            }
+            animateGhost(); // Start the ghost animation loop
+
+            // --- Ghost Click Activity ---
+            ghostElement.addEventListener('click', () => {
+                ghostElement.classList.remove('animate-float-ghost'); // Stop normal float
+                ghostElement.classList.add('animate-ghost-crazy-bounce'); // Add crazy bounce
+
+                // Remove the crazy bounce animation after it completes to allow re-triggering
+                ghostElement.addEventListener('animationend', () => {
+                    ghostElement.classList.remove('animate-ghost-crazy-bounce');
+                    ghostElement.classList.add('animate-float-ghost'); // Resume normal float
+                }, { once: true }); // Ensure the event listener is removed after one use
+            });
         });
     </script>
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f03236736cd2407cabee525446e7c5a9"}'></script>
